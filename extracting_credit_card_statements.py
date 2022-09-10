@@ -1,20 +1,17 @@
-###################################################################################################################
-### import required libraries
-###################################################################################################################
-
 import pdfplumber as pdfp
 import pandas as pd
+import numpy as np
 import warnings
+import os
 
 warnings.filterwarnings('ignore')
 
-###################################################################################################################
-### load the data
-###################################################################################################################
-
-# choose a month
 month = '22-07'
 pages = []
+
+###################################################################################################################
+# loading the data
+###################################################################################################################
 
 # open pdf statement, read each page and extract the text line by line, save results
 with pdfp.open(f'Credit Card Statements/{month}.pdf') as pdf:
@@ -30,7 +27,7 @@ with pdfp.open(f'Credit Card Statements/{month}.pdf') as pdf:
             df = pd.concat([df, new_df])
 
 ###################################################################################################################
-### some data cleaning
+# some data cleaning
 ###################################################################################################################
 
 # drop null values
@@ -59,7 +56,7 @@ df['Amount'] = df['Amount'].str.replace(',', '').str.replace('\$', '')
 df = df.loc[~df['Place'].str.lower().str.contains('spotify|fido|payment-thankyou|tsiinternet'), :]
 
 ###################################################################################################################
-### set up the keywords which will be used to group the charges
+# set up the keywords which will be used to group the charges
 ###################################################################################################################
 
 on_the_go_coffee = 'timhortons'\
@@ -122,7 +119,8 @@ bars_and_restaurants = 'jackastor'\
                        '|eggsmart'\
                        '|aokcraft'\
                        '|legendsmusic'\
-                       '|aramark'
+                       '|aramark'\
+                       '|cineplex'
 
 clothing = 'zara'\
            '|h&m'\
@@ -140,7 +138,8 @@ grocery = 'rcss'\
           '|loblaws'\
           '|zehrs'\
           '|metro'\
-          '|foodbasics'
+          '|foodbasics'\
+          '|nikufarms'
 
 gas = 'shell'\
       '|petro'\
@@ -148,7 +147,7 @@ gas = 'shell'\
       '|pioneer'
 
 ###################################################################################################################
-### assert that we're not double counting any charges by placing them in multiple categories
+# assert that we're not double counting any charges by placing them in multiple categories
 ###################################################################################################################
 
 cats = {
@@ -178,6 +177,7 @@ for cat1 in cats:
 
 for i, cat in enumerate(cats):
     
+    os.system('cls' if os.name == 'nt' else 'clear')
     print('\n')
         
     print(f'{cat}: \n')
@@ -187,3 +187,19 @@ for i, cat in enumerate(cats):
         
     answer = input('\n Does this category look correct? (y/n): ')
     assert answer == 'y', 'Better change it!'
+
+    
+###################################################################################################################
+### show the user what is leftover (i.e. what was not caught by their keywords)
+###################################################################################################################
+
+os.system('cls' if os.name == 'nt' else 'clear')
+
+full_list = on_the_go_coffee + '|' + beer_and_weed + '|' + take_out + '|' + \
+            bars_and_restaurants + '|' + clothing + '|' + grocery + '|' + gas
+tmp = df.loc[~df['Place'].str.lower().str.contains(full_list), ['Place', 'Amount']]
+tmp.index = np.arange(1, len(tmp) + 1)
+print('\n\n', f'{tmp.shape[0]} leftover (uncategorized) charges: \n\n', tmp, '\n\n')
+answer = input('These will all go into the misc category, anything in here that you would like to add to a category? (y/n)')
+
+assert answer == 'n', 'Please add to the categories as needed'
