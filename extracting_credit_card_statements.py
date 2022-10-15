@@ -52,8 +52,24 @@ df = df.rename(columns={
 # touch up the amount column so that it will be formatted as a number in google sheet
 df['Amount'] = df['Amount'].str.replace(',', '').str.replace('\$', '')
 
-# drop rows with recurring charges, or entries which are recurring payments
-df = df.loc[~df['Place'].str.lower().str.contains('spotify|fido|payment-thankyou|tsiinternet'), :]
+###################################################################################################################
+# exclude entries which are recurring payments
+###################################################################################################################
+
+recurring_payments = 'spotify'\
+                     '|fido'\
+                     '|payment-thankyou'\
+                     '|tsiinternet'
+  
+os.system('cls' if os.name == 'nt' else 'clear')
+print('Recurring payments (not included in analysis): ', end='\n\n')
+for item in recurring_payments.split('|'):
+    print(f'\t{item}')
+
+answer = input('\n Do the recurring payments look correct? (y/n): ')
+assert answer == 'y', 'Better update it!'
+
+df = df.loc[~df['Place'].str.lower().str.contains(recurring_payments), :]
 
 ###################################################################################################################
 # set up the keywords which will be used to group the charges
@@ -193,13 +209,50 @@ for i, cat in enumerate(cats):
 ### show the user what is leftover (i.e. what was not caught by their keywords)
 ###################################################################################################################
 
+# clear the terminal screen
 os.system('cls' if os.name == 'nt' else 'clear')
 
+# generate full list of categorized charges
 full_list = on_the_go_coffee + '|' + beer_and_weed + '|' + take_out + '|' + \
             bars_and_restaurants + '|' + clothing + '|' + grocery + '|' + gas
+
+# use this to find uncategorized charges
 tmp = df.loc[~df['Place'].str.lower().str.contains(full_list), ['Place', 'Amount']]
 tmp.index = np.arange(1, len(tmp) + 1)
 print('\n\n', f'{tmp.shape[0]} leftover (uncategorized) charges: \n\n', tmp, '\n\n')
-answer = input('These will all go into the misc category, anything in here that you would like to add to a category? (y/n)')
 
+# check with user that the uncategorized charges are correct
+answer = input('These will all go into the misc category, anything in here that you would like to add to a category? (y/n): ')
 assert answer == 'n', 'Please add to the categories as needed'
+
+# touch up the final version of the misc charges
+misc_charges = tmp['Place'].unique()
+misc = ''
+
+for misc_charge in misc_charges:
+    misc = misc + '|' + misc_charge
+    
+misc = misc.strip('|').lower()
+
+###################################################################################################################
+### aggregate the totals by category, show final output
+###################################################################################################################
+
+# clear the terminal screen
+os.system('cls' if os.name == 'nt' else 'clear')
+
+# aggregate regular categories
+cat_names = [cat for cat in cats]
+final_df = pd.DataFrame(columns=cat_names)
+for cat in cats:
+    final_df.loc[0, cat] = df.loc[df['Place'].str.lower().str.contains(cats[cat]), 'Amount'].astype('float64').sum()
+
+# aggregate the misc category
+final_df.loc[0, 'misc'] = df.loc[df['Place'].str.lower().str.contains(misc), 'Amount'].astype('float64').sum()
+
+# show output
+print('Final output: ', end='\n\n')
+for col in final_df.columns:
+    col1 = col + ': '
+    print(f'{col1}{round(final_df[col][0])}')
+print('\n\n')
