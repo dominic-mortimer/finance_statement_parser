@@ -3,15 +3,36 @@ import pandas as pd
 import numpy as np
 import warnings
 import os
+import time
 
 warnings.filterwarnings('ignore')
 
-month = '22-07'
-pages = []
+###################################################################################################################
+# Get the year and month that the user wants to analyze
+###################################################################################################################
+
+# clear the screen and get the input
+os.system('cls' if os.name == 'nt' else 'clear')
+
+year_ = input('\n What year are you looking to analyze? \n\n')
+assert int(year_) in (2021, 2022), 'Invalid year entered'
+month_ = input('\n What month are you looking to analyze? (1 - 12) \n\n')
+assert int(month_) in list(np.arange(1, 13)), 'Invalid month entered'
+
+# re-structure the input in such a way that we can use it
+if int(month_) < 10:
+    month_ = '0' + month_
+month = year_[-2:] + '-' + month_
+
+time.sleep(1)
+print(f'\n\n Processing data for {month}...')
+time.sleep(2)
 
 ###################################################################################################################
 # loading the data
 ###################################################################################################################
+
+pages = []
 
 # open pdf statement, read each page and extract the text line by line, save results
 with pdfp.open(f'Credit Card Statements/{month}.pdf') as pdf:
