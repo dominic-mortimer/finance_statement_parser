@@ -25,7 +25,7 @@ if int(month_) < 10:
 month = year_[-2:] + '-' + month_
 
 time.sleep(1)
-print(f'\n\n Processing data for {month}...')
+print(f'Processing data for {month}...')
 time.sleep(2)
 
 ###################################################################################################################
@@ -80,7 +80,8 @@ df['Amount'] = df['Amount'].str.replace(',', '').str.replace('\$', '')
 recurring_payments = 'spotify'\
                      '|fido'\
                      '|payment-thankyou'\
-                     '|tsiinternet'
+                     '|tsiinternet'\
+                     '|insurancecompanymarkham'
   
 os.system('cls' if os.name == 'nt' else 'clear')
 print('Recurring payments (not included in analysis): ', end='\n\n')
@@ -91,6 +92,24 @@ answer = input('\n Do the recurring payments look correct? (y/n): ')
 assert answer == 'y', 'Better update it!'
 
 df = df.loc[~df['Place'].str.lower().str.contains(recurring_payments), :]
+
+###################################################################################################################
+# show the list of charges and ask if anything should be ignored this time around
+###################################################################################################################
+
+os.system('cls' if os.name == 'nt' else 'clear')
+pd.set_option('max_rows', None)
+print(df['Place'])
+pd.reset_option('max_rows')
+
+answer = input('\n Anything you would like to ignore this time around? (y/n): ')
+assert answer == 'n', 'Add it into line 105, and comment out line 108!'
+
+payments_to_ignore = 'westjet'\
+                     '|paybackwithpoints'\
+                     '|bessadakia'
+# payments_to_ignore = 'nothing to ignore!'
+df = df.loc[~df['Place'].str.lower().str.contains(payments_to_ignore), :]
 
 ###################################################################################################################
 # set up the keywords which will be used to group the charges
