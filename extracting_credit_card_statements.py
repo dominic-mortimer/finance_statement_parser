@@ -346,3 +346,6 @@ def extracting_credit_card_statements():
     print('\n\n')
 
     return (df, final_df)
+
+if __name__ == '__main__':
+    df, final_df = extracting_credit_card_statements()
