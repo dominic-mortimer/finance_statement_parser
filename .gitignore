@@ -2,3 +2,5 @@
 *.log
 *.pyc
 *.pdf
+*.txt
+*.exe
