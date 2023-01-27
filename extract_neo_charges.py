@@ -3,12 +3,13 @@ import sys
 from selenium import webdriver
 import time
 import re
-
+import numpy as np
 import pandas as pd
 import warnings
+
 warnings.filterwarnings('ignore')
 
-def extract_neo_charges():
+def extract_neo_charges(month_of_interest):
 
     #####################################################################################################################
     # open some required information from saved text file
@@ -188,4 +189,4 @@ def extract_neo_charges():
 
         os.system('cls' if os.name == 'nt' else 'clear')
 
-    return final_df
+    return final_df.loc[final_df['month'] == month_of_interest, :].sort_values('date').reset_index().drop('index', axis=1)
