@@ -189,4 +189,6 @@ def extract_neo_charges(month_of_interest):
 
         os.system('cls' if os.name == 'nt' else 'clear')
 
-    return final_df.loc[final_df['month'] == month_of_interest, :].sort_values('date').reset_index().drop('index', axis=1)
+    # return the subset of the df corresponding to the month of interest
+    final_df = final_df.loc[final_df['month'] == month_of_interest, ['date', 'place', 'charge']]
+    return final_df.sort_values('date').reset_index().drop('index', axis=1)
