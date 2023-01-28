@@ -7,14 +7,13 @@ The purpose of this project is to automate the process of categorizing credit ca
     - clean the extracted charges and save as csv, 
     - return the csv for the month asked for
 - `charge_categorizer.py`
-    - ask the user what month they're looking to analyze
     - call `extract_neo_charges.py` and ask for the month of interest
     - take the cleaned charges and categorize them based on keywords found in the charge
     - return the categorized charges
-- `charge_summarizer.py`
-    - call `charge_categorizer.py`
-    - summarize the charges by category
-    - save the summarized charges as csv
+- `get_categorized_charges.py`
+    - take month of interest as input from user, check if we've already done this month
+    - if already done, load the saved results and display to user
+    - else, call `charge_categorizer.py` and save the results to csv
 - `category_visualizer.py`
     - call `charge_categorizer.py`
     - take the categorized charges and generate a dynamic bar chart to show how spend varied across categories over the course of the month
